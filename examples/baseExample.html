@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iBox Base Example</title>
+    <link rel="stylesheet" href="../src/base/styles.css">
+    <script src="../src/base/iBoxBase.js"></script>
+</head>
+<body>
+    <div id="ibox-container" style="position: relative; width: 100%; height: 500px;"></div>
+
+    <script>
+        window.onload = () => {
+            // Create a new instance of iBoxBase
+            const iBox = new window.iBoxBase(document.getElementById('ibox-container'));
+            // Additional interaction can be added here
+        };
+    </script>
+</body>
+</html>
