@@ -97,3 +97,100 @@ class ExpandCollapseIBox extends iBoxBase {
 
 // Export the class for external usage
 window.ExpandCollapseIBox = ExpandCollapseIBox;
+
+Good, now please update the following based on that: ### File Structure:
+
+```mathematica
+iBox
+│
+├── src
+│   ├── base
+│   │   ├── iBoxBase.js
+│   │   └── styles.css
+│   │
+│   ├── expansions
+│   │   ├── Draggable.js
+│   │   ├── Resizable.js
+│   │   ├── Editable.js
+│   │   └── ExpandCollapse.js
+│   │
+│   ├── components
+│   │   └── iBoxComplete.js
+│   │
+│   ├── utils
+│   │   ├── constants.js
+│   │   └── helpers.js
+│   │
+│   └── index.js
+│
+├── test
+│   ├── iBoxBase.test.js
+│   ├── Draggable.test.js
+│   ├── Resizable.test.js
+│   ├── Editable.test.js
+│   ├── ExpandCollapse.test.js
+│   └── iBoxComplete.test.js
+│
+├── examples
+│   ├── baseExample.html
+│   ├── draggableExample.html
+│   ├── resizableExample.html
+│   ├── editableExample.html
+│   ├── expandCollapseExample.html
+│   └── completeExample.html
+│
+├── package.json
+│
+└── README.md
+```
+
+* `base` (Base Component Folder)
+  * `iBoxBase.js`: Base iBox component, containing the minimal functionality and rendering of the iBox without any expansions.
+  * `styles.css`: Base styling for the iBox component.
+* `expansions` (Functionality Expansions Folder)
+  * `Draggable.js`: Draggable functionality expansion.
+  * `Resizable.js`: Resizable functionality expansion.
+  * `Editable.js`: Editable functionality expansion.
+  * `ExpandCollapse.js`: Expand and collapse functionality expansion.
+* `components` (Complete Components Folder)
+  * `iBoxComplete.js`: Culminating class that includes all previous functionality, integrating the base and all expansions.
+* `utils` (Utilities Folder)
+  * `constants.js`: Constants and configurations.
+  * `helpers.js`: Helper functions to support main components.
+* `index.js`: Entry point for the package/library.
+
+#### 2. `test` (Test Folder)
+
+* `iBoxBase.test.js`: Jest unit tests for the base iBox component.
+* `Draggable.test.js`: Jest unit tests for the draggable functionality.
+* `Resizable.test.js`: Jest unit tests for the resizable functionality.
+* `Editable.test.js`: Jest unit tests for the editable functionality.
+* `ExpandCollapse.test.js`: Jest unit tests for the expand/collapse functionality.
+* `iBoxComplete.test.js`: Jest integration tests for the complete iBox component.
+
+#### 3. `examples` (Examples Folder)
+
+* `baseExample.html`: Example HTML file to test and interact with the base iBox component.
+* `draggableExample.html`: Example HTML file to test and interact with the draggable functionality.
+* `resizableExample.html`: Example HTML file to test and interact with the resizable functionality.
+* `editableExample.html`: Example HTML file to test and interact with the editable functionality.
+* `expandCollapseExample.html`: Example HTML file to test and interact with the expand/collapse functionality.
+* `completeExample.html`: Example HTML file to test and interact with the complete iBox component.
+
+#### 4. `package.json`: Lists dependencies and scripts for the project.
+
+#### 5. `README.md`: Documentation for the project.
+
+### Dependencies:
+
+* **React** : For building the component.
+* **Styled-Components** : For styling.
+* **Jest** : For testing.
+* **React-Draggable** : If the native drag functionality is not sufficient, this library can be used for drag handling.
+
+### Expected Output:
+
+* **Base iBox Component** : The minimal iBox structure and functionality.
+* **Functional Expansions** : Individual functionality extensions such as draggability, resizability, editability, etc.
+* **Complete iBox Component** : A fully functional iBox with all expansions integrated.
+* **Test Files** : Test HTML files will render the associated components or functionalities, allowing manual interaction.
