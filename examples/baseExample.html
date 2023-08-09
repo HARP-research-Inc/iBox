@@ -1,21 +1,142 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>iBox Base Example</title>
     <link rel="stylesheet" href="../src/base/styles.css">
     <script src="../src/base/iBoxBase.js"></script>
+    <style>
+        .flex-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .controls {
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            /* allow controls to wrap to next line */
+            align-items: center;
+            gap: 10px;
+            min-width: 100vh;
+        }
+
+        .ibox-wrapper {
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+            margin-top: 20px;
+            width: 100%;  /* Ensure it takes up the full width available to it */
+        }
+
+        .ibox-container {
+            position: relative;
+            margin: 10px;
+            /* Optional: for some spacing between iBoxes */
+        }
+    </style>
 </head>
+
 <body>
-    <div id="ibox-container" style="position: relative; width: 100%; height: 500px;"></div>
+    <div class="flex-container">
+        <!-- Controls for theme, label, and expand/collapse state -->
+
+        <section class="ibox-wrapper">
+            <div class="ibox-container" id="ibox-container-1"></div>
+            <div class="ibox-container" id="ibox-container-2"></div>
+            <div class="ibox-container" id="ibox-container-3"></div>
+        </section>
+        <div class="controls">
+            <label for="themeSelector">Select a theme:</label>
+            <select id="themeSelector"></select>
+
+            <label for="iboxLabel">Label:</label>
+            <input type="text" id="iboxLabel" placeholder="iBox Label">
+
+            <label for="isExpanded">Expanded:</label>
+            <input type="checkbox" id="isExpanded">
+
+            <button onclick="updateiBox()">Update iBox</button>
+        </div>
+
+    </div>
 
     <script>
+        // Initialize the iBoxes once when the page loads
+        let currentIBox1 = new window.iBoxBase(document.getElementById('ibox-container-1'));
+        let currentIBox2 = new window.iBoxBase(document.getElementById('ibox-container-2'));
+        let currentIBox3 = new window.iBoxBase(document.getElementById('ibox-container-3'));
+
+        function updateiBox() {
+            const themeName = document.getElementById('themeSelector').value;
+            const labelText = document.getElementById('iboxLabel').value;
+            const isExpanded = document.getElementById('isExpanded').checked;
+
+            // Find the theme index by its name
+            const theme = parseInt(document.getElementById('themeSelector').value);
+
+            // Update properties of existing iBox instances
+            currentIBox1.update({
+                labelText: labelText,
+                isExpanded: isExpanded,
+                theme: theme
+            });
+
+            currentIBox2.update({
+                labelText: labelText,
+                isExpanded: isExpanded,
+                theme: theme
+            });
+
+            currentIBox3.update({
+                labelText: labelText,
+                isExpanded: isExpanded,
+                theme: theme
+            });
+
+            // Add children to the second and third iBox instances
+            currentIBox2.element.querySelector('.ibox-children-container').innerHTML = `
+        <div class="ibox-child">Child 1</div>
+    `;
+
+            currentIBox3.element.querySelector('.ibox-children-container').innerHTML = `
+        <div class="ibox-child">Child 2</div>
+        <div class="ibox-child">Child 3</div>
+        <div class="ibox-child">Child 4</div>
+        <div class="ibox-child">Child 5</div>
+        <div class="ibox-child">Child 6</div>
+    `;
+        }
+
+        function populateThemeOptions() {
+            const themeSelector = document.getElementById('themeSelector');
+            const themeNames = [
+                "Blazing Sunset", "Lavender Dream", "Ocean Blue", "Mint Splash",
+                "Sunny Day", "Golden Hour", "Autumn Rust", "Steel",
+                "Emerald", "Chili Red", "Secret"  // Add "Rainbow" as the secret theme
+            ];
+
+            themeNames.forEach((name, index) => {
+                const option = document.createElement('option');
+                option.value = index + 1; // Theme index starts at 1
+                option.textContent = name;
+                themeSelector.appendChild(option);
+            });
+        }
+
         window.onload = () => {
-            // Create a new instance of iBoxBase
-            const iBox = new window.iBoxBase(document.getElementById('ibox-container'));
-            // Additional interaction can be added here
+            // Populate theme options
+            populateThemeOptions();
+
+            // Set initial properties for iBox instances on page load
+            updateiBox();
         };
+
     </script>
 </body>
+
 </html>

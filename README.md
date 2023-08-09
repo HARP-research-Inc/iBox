@@ -184,7 +184,7 @@ iBox
 ```
 
 * `base` (Base Component Folder)
-  * `iBoxBase.js`: Base iBox component, containing the minimal functionality of the iBox without any expansions.
+  * `iBoxBase.js`: Base iBox component, containing the minimal functionality and rendering of the iBox without any expansions.
   * `styles.css`: Base styling for the iBox component.
 * `expansions` (Functionality Expansions Folder)
   * `Draggable.js`: Draggable functionality expansion.

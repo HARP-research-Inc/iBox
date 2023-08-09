@@ -2,11 +2,9 @@
     /* Existing Styles */
     --primary-color: var(--selected-primary-color); /* Set by JavaScript */
     --secondary-color: var(--selected-secondary-color);
-    --tertiary-color: var(--selected-tertiary-color);;
-
+    --tertiary-color: var(--selected-tertiary-color);
     border: 2px solid var(--primary-color);
     background-color: var(--primary-color);
-    padding: 5px;
     position: relative;
     overflow: hidden;
     border-top-right-radius: 3px;
@@ -14,37 +12,110 @@
     margin: 10px;  /* Add a margin of 10px */
     border-bottom-right-radius: 15px;
     border-top-left-radius: 15px;
+    min-height: 47px; 
+    display: flex;
+    flex-direction: column;  /* Stack children vertically */
+    align-items: flex-start; /* Align children to the start */
 }
 
 .drag-handle {
-    cursor: resize;
+    display: grid;
+    grid-template-columns: repeat(3, 3px);
+    gap: 2px;  /* Adjust this for desired spacing between circles */
+    width: 22px;
+    height: 33px;
+    background-color: transparent;
+    position: relative;
+    margin-right: 5px;
+    margin-left: 3px;
+    cursor: grab;
+    justify-content: center;
+    align-content: center;
 }
 
-.interactive-box.collapsed .ibox-children-container {
+.drag-handle span {
+    display: inline-block;
+    width: 3px;
+    height: 3px;
+    background-color: var(--selected-tertiary-color);
+    border-radius: 50%;
+}
+
+@keyframes rainbowAnimation {
+    0%   { background-color: red; }
+    14%  { background-color: orange; }
+    28%  { background-color: yellow; }
+    42%  { background-color: green; }
+    57%  { background-color: blue; }
+    71%  { background-color: indigo; }
+    85%  { background-color: violet; }
+    100% { background-color: red; }
+}
+
+/* Base rainbow animation */
+.rainbow {
+    animation: rainbowAnimation 10s infinite;
+}
+
+/* Secondary rainbow animation with a built-in delay */
+.rainbow-secondary {
+    animation: rainbowAnimation 10s infinite;
+    animation-delay: -2s; /* Delay by 2s to start at orange */
+}
+
+/* Tertiary rainbow animation with a built-in delay */
+.rainbow-tertiary {
+    animation: rainbowAnimation 10s infinite;
+    animation-delay: -4s; /* Delay by 4s to start at yellow */
+}
+
+.test-element {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.test-box {
+    width: 50px;
+    height: 50px;
+    margin: 10px;
+    border: 1px solid black;
+}
+.interactive-box:not(.expanded) > .ibox-children-container {
+    display: none;
+}
+
+/* Hide the expand button when the iBox is expanded */
+.interactive-box.expanded .expand-button {
     display: none;
 }
 
 /* Styles for expanded state (default) */
 .interactive-box.expanded .ibox-children-container {
     display: block;
+
 }
+
 .corner-box {
-    min-width: 80px;
-    min-height: 30px;
     position: absolute;
     background-color: var(--primary-color);
     border: 3px solid var(--primary-color);
     border-bottom-right-radius: 10px;
-    padding: 5px 15px 5px 5px;
+    padding: 5px 15px 0px 0px;
     box-sizing: border-box;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: space-between; /* Maximize space between text and button */
     font-size: 1.1em;
     font-family: 'Helvetica';
-    top: 0;
-    left: 0;
+    top: -5px;
+    left: 0px;
     cursor: pointer;
+    min-height: 25px;
+    min-width: 80px;
+    flex-shrink: 0; /* Prevent it from shrinking */
+    padding-right: 5px;
 }
 
 .corner-input {
@@ -66,8 +137,9 @@
     display: inline-block;
     vertical-align: middle;
     white-space: nowrap;
-    font: Arial;
+    font-family: "Helvetica";
     color: white;
+    margin-right: 15px;
 }
 
 .expand-button, .collapse-button {
@@ -86,17 +158,26 @@
 }
 
 .expand-button {
-    margin-left: 115px;
-    margin-right: 10px;
+    margin-left: auto;
+    margin-right: 0px;
+    margin-right: 5px;
     vertical-align: middle;
     color: var(--tertiary-color);
 }
 
 .ibox-children-container {
-    background-color: rgba(255, 255, 255, 0.1); 
+    background-color: var(--secondary-color); 
     position: relative;
-    margin-top: 10px; 
-    padding: 5px;
     box-sizing: border-box;
-    min-height: 20px; 
+    min-height: 30px; 
+    padding: 5px;
+    position: relative;
+    overflow: hidden;
+    flex-grow: 1;   /* Allow it to grow */
+    min-width: max(inherit, 225px);
+    padding: calc(var(--corner-box-height)) 5px 5px 5px;
+}
+
+.interactive-box:not(.expanded) > .collapse-button {
+    display: none;
 }
