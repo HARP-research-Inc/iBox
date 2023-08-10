@@ -1,49 +1,25 @@
-// File: index.js
-// Version: 1.0.0
-// Dependencies: iBoxComplete from './components/iBoxComplete'
-// Description: Entry point for the iBox package/library.
-// Pseudo-Code:
-/*
-Imports:
-
-Import iBoxBase from ./base/iBoxBase.js.
-Import Draggable from ./expansions/Draggable.js.
-Import Resizable from ./expansions/Resizable.js.
-Import Editable from ./expansions/Editable.js.
-Import ExpandCollapse from ./expansions/ExpandCollapse.js.
-Import iBoxComplete from ./components/iBoxComplete.js.
-Export Main Class & Extensions:
-
-Export iBoxBase as the main class for creating basic iBox instances.
-Export the Draggable, Resizable, Editable, and ExpandCollapse classes as additional features that can be applied to the iBox.
-Export Complete Component:
-
-Export iBoxComplete as a comprehensive component that includes all the functionality of iBoxBase and the extensions.
-Additional Exports (if needed):
-
-Any additional utility functions or constants that should be publicly available.
-End of File Definition.
-*/
-// Imports:
-import iBoxBase from './base/iBoxBase.js';
-import Draggable from './expansions/Draggable.js';
-import Resizable from './expansions/Resizable.js';
-import Editable from './expansions/Editable.js';
-import ExpandCollapse from './expansions/ExpandCollapse.js';
-import iBoxComplete from './components/iBoxComplete.js';
-
-// Export Main Class & Extensions:
-export {
-  iBoxBase,
-  Draggable,
-  Resizable,
-  Editable,
-  ExpandCollapse
-};
-
-// Export Complete Component:
-export default iBoxComplete;
-
-// Additional Exports (if needed):
-// Example:
-// export { utilityFunction1, utilityFunction2, CONSTANTS };
+/**
+ * File: index.js
+ * Version: 1.0.0
+ * Dependencies: iBoxBase, Children, ExpandCollapse, Draggable, Resizable, Editable, iBoxComplete
+ * Description: Entry point for the iBox package/library. Exports the main components and functionalities of the iBox, making them accessible for external use.
+ *
+ * Exports:
+ * - iBoxBase: Base iBox component, containing the minimal functionality of the iBox without any expansions.
+ * - Children: Child generation and JSON interaction functionality expansion.
+ * - ExpandCollapse: Expand and collapse functionality expansion.
+ * - Draggable: Draggable functionality expansion.
+ * - Resizable: Resizable functionality expansion.
+ * - Editable: Editable functionality expansion.
+ * - iBoxComplete: Culminating class that includes all previous functionality, integrating the base and all expansions.
+ *
+ * Usage:
+ * - Import the desired components or the complete iBox from this entry point to utilize them in external projects or applications.
+ *
+ * Example:
+ *   import { iBoxComplete, iBoxBase } from 'iBox';
+ *   const myCompleteiBox = new iBoxComplete(element, options);
+ *   const myBaseiBox = new iBoxBase(element, options);
+ *
+ * End of File Definition.
+ */

@@ -1,62 +1,39 @@
-/*File: iBoxComplete.js
-Version: 1.0.0
-Dependencies: iBoxBase.js, ExpandCollapse.js, Draggable.js, Editable.js, Resizable.js
-Description: Comprehensive iBox component with full functionality.
-Pseudo-Code:
-
-Class Definition: iBoxBase
-
-Properties:
-
-    - position: To store the position of the box (e.g., x and y coordinates).
-    - size: To store the size of the box (e.g., width and height).
-    - content: To store the content or data within the box.
-    - style: To store styling properties (can be linked with styles.css).
-
-Methods:
-
-    - constructor: Initialize the base properties.
-        + Input: Initial position, size, content, styling options.
-        + Action: Assign the provided values to the corresponding properties.
-
-    - render: Render the box on the screen.
-        + Action: Create and display the box element according to the properties.
-
-    - setPosition: Set the position of the box.
-        + Input: New x and y coordinates.
-        + Action: Update the position property and reflect the change on the screen.
-
-    - setSize: Set the size of the box.
-        + Input: New width and height.
-        + Action: Update the size property and reflect the change on the screen.
-
-    - setContent: Set the content of the box.
-        + Input: New content.
-        + Action: Update the content property and reflect the change on the screen.
-
-    - setStyle: Apply new styles to the box.
-        + Input: Styling options.
-        + Action: Update the style property and apply the styles to the box element.
-
-    - getPosition: Get the current position.
-        + Output: Returns the current position.
-
-    - getSize: Get the current size.
-        + Output: Returns the current size.
-
-    - getContent: Get the current content.
-        + Output: Returns the current content.
-
-    - getStyle: Get the current style.
-        + Output: Returns the current style.
-
-End of Class Definition.
-*/
-import { JSONInteractableiBox } from './expansions';
-
-class iBoxComplete extends JSONInteractableiBox {
-  // Combine all functionalities from the base to JSONInteractable iBox.
-  // Include any additional properties, methods, or adjustments specific to the complete iBox.
-}
-
-export default iBoxComplete;
+/**
+ * File: iBoxComplete.js
+ * Version: 1.0.0
+ * Dependencies: Draggable, Resizable, Editable (Incorporates functionalities from these components)
+ * Description: Complete iBox component that integrates the base iBox functionalities with all expansions.
+ *              This class is the culmination of all previous functionality, providing a fully functional iBox with drag-and-drop, resizing, editing, and more.
+ * 
+ * Class Definition: iBoxComplete (Incorporates Draggable, Resizable, Editable)
+ * 
+ * Properties:
+ * - element: Reference to the DOM element representing the iBox.
+ * - options: Object containing configuration options for the iBox.
+ * - themes: Array of theme objects containing styling information.
+ * - resizeHandles: Object containing the handles used for resizing.
+ * - constraints: Object containing the constraints for resizing.
+ * - dragHandles: Object containing the handles used for dragging.
+ * 
+ * Constructor: (element, options)
+ * - Initializes the iBoxComplete with a given DOM element and options, integrating all functionalities from Draggable, Resizable, and Editable.
+ * 
+ * Methods:
+ * - initialize(): Sets up the iBoxComplete, applies default settings, initializes all integrated functionalities.
+ * - createiBox(): Creates the HTML structure of the iBox and applies the theme.
+ * - destroy(): Cleans up resources and removes the iBox from the DOM.
+ * - update(options): Updates the iBox configuration with new options.
+ * - renderDimensions(): Sets the width, height, and position of the iBox.
+ * - renderLayout(): Adjusts layout properties like min-width based on the content.
+ * - renderLabel(): Updates the label of the iBox.
+ * - applyTheme(): Applies the selected theme to the iBox.
+ * - enableResize(iBoxId): Enables resizing for the specified iBox (inherited from Resizable).
+ * - disableResize(iBoxId): Disables resizing for the specified iBox (inherited from Resizable).
+ * - onDragStart(iBoxId): Triggered when the drag process starts for the specified iBox (inherited from Draggable).
+ * - startEditing(iBoxId): Initiates the label editing process for the specified iBox (inherited from Editable).
+ * 
+ * Utility Functions:
+ * - None specified in this version. (If there are any utility functions or helpers specific to the iBoxComplete class, they can be added here.)
+ * 
+ * End of File Definition.
+ */

@@ -1,0 +1,97 @@
+.corner-box {
+    position: relative;
+    background-color: var(--primary-color);
+    border: 3px solid var(--primary-color);
+    padding: 5px 15px 0px 5px;
+    font-size: 1.1em;
+    font-family: 'Helvetica';
+    left: 0px;
+    top: 0px;
+    height: 43px; /* Fixed height to prevent wrapping */
+    min-width: 80px;
+    white-space: nowrap; /* Prevent text wrapping */
+    display: flex;
+    vertical-align: middle;
+    border-bottom-right-radius: 10px;
+    border-top-left-radius: 10px;
+    flex-grow: 1; /* Allow the child to grow */
+    flex-shrink: 0; /* Prevent the child from shrinking */
+    flex-basis: auto; /* Set the starting size based on content */
+    transition: all 500ms ease-in-out, background-color 250ms ease-in-out, color 250ms ease-in-out;
+    z-index: 1; /* Stack above ibox-children-container */
+}
+
+.corner-input {
+    margin-left: 30px;
+    border: none;
+    text-align: left;
+    box-sizing: border-box;
+    font-size: 1.1em;
+    width: 70px;
+    height: 35px;
+}
+
+.label-handle {
+    display: flex;
+    flex-direction: row;
+    vertical-align: middle;
+    font-family: "Helvetica";
+    color: white;
+    cursor: pointer;
+    margin-right: 15px;
+}
+
+.label-span {
+    display: table-cell;
+    vertical-align: middle;
+    font-family: "Helvetica";
+    color: white;
+    line-height: 33px; 
+}
+
+.expand-button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 1.5em;
+    margin-left: auto;
+    margin-right: 5px;
+    color: var(--tertiary-color);
+    vertical-align: middle;
+    overflow: hidden;
+}
+
+.interactive-box:not(.expanded) > .corner-box {
+    min-width: inherit;
+    height: 43px; /* Fixed height to prevent wrapping */
+}
+
+.interactive-box.expanded > .corner-box {
+    min-width: 0px;
+    height: 35px; /* Fixed height to prevent wrapping */
+    margin-right: 40px;
+    border-bottom-right-radius: 15px;
+}
+
+.drag-handle {
+    display: grid;
+    grid-template-columns: repeat(3, 3px);
+    gap: 2px;  /* Adjust this for desired spacing between circles */
+    width: 22px;
+    height: 33px;
+    background-color: transparent;
+    position: relative;
+    margin-right: 5px;
+    margin-left: 3px;
+    cursor: grab;
+    justify-content: center;
+    align-content: center;
+}
+
+.drag-handle span {
+    display: inline-block;
+    width: 3px;
+    height: 3px;
+    background-color: var(--selected-tertiary-color);
+    border-radius: 50%;
+}

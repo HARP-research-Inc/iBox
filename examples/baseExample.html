@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>iBox Base Example</title>
-    <link rel="stylesheet" href="../src/base/styles.css">
+    <link rel="stylesheet" href="../src/styles/styles.css">
     <script src="../src/base/iBoxBase.js"></script>
     <style>
         .flex-container {
@@ -13,6 +13,7 @@
             flex-direction: column;
             align-items: center;
             height: 100vh;
+            width: 100vh;
         }
 
         .controls {
@@ -53,7 +54,7 @@
         <div class="controls">
             <label for="themeSelector">Select a theme:</label>
             <select id="themeSelector"></select>
-
+            
             <label for="iboxLabel">Label:</label>
             <input type="text" id="iboxLabel" placeholder="iBox Label">
 
@@ -61,6 +62,8 @@
             <input type="checkbox" id="isExpanded">
 
             <button onclick="updateiBox()">Update iBox</button>
+            <button id="toggleExpansion">Toggle Expansion</button>
+            
         </div>
 
     </div>
@@ -136,6 +139,11 @@
             updateiBox();
         };
 
+        document.getElementById('toggleExpansion').addEventListener('click', function() {
+            const isExpandedCheckbox = document.getElementById('isExpanded');
+            isExpandedCheckbox.checked = !isExpandedCheckbox.checked; // Toggle the checkbox
+            updateiBox(); // Update the iBoxes to reflect the new state
+        });
     </script>
 </body>
 

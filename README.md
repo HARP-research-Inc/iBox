@@ -186,8 +186,7 @@ iBox
 │
 ├── src
 │   ├── base
-│   │   ├── iBoxBase.js
-│   │   └── styles.css
+│   │   └──  iBoxBase.js
 │   │
 │   ├── expansions
 │   │   ├── Children.js
@@ -202,6 +201,12 @@ iBox
 │   ├── utils
 │   │   ├── constants.js
 │   │   └── helpers.js
+│   │
+│   ├── styles
+│   │   ├── ibox-children.css
+│   │   ├── ibox-corner.css
+│   │   ├── ibox-general.css
+│   │   └── styles.css
 │   │
 │   └── index.js
 │

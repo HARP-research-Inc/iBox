@@ -1,0 +1,31 @@
+/*===========================
+TABLE OF CONTENTS
+=============================
+1. iBox General Styles
+   - Interactive Box
+   - Drag Handle
+   - Expand and Collapse Buttons
+   - Rainbow Animation
+
+2. iBox Corner Styles
+   - Corner Box
+   - Corner Input
+   - Corner Box Span
+
+3. iBox Children Styles
+   - iBox Children Container
+
+4. iBox Themes
+===========================*/
+
+/* Importing iBox General Styles */
+@import 'ibox-general.css';
+
+/* Importing iBox Corner Styles */
+@import 'ibox-corner.css';
+
+/* Importing iBox Children Container Styles */
+@import 'ibox-children.css';
+
+/* Importing iBox Themes */
+@import 'themes.css';

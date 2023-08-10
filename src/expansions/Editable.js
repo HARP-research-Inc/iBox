@@ -1,49 +1,27 @@
 /**
- * Editable iBox (Inherits iBoxBase)
- *
- * Adds the label editing functionality to the iBox component.
- * Users can modify the label content through this expansion.
- * This class builds on the base iBox, focusing solely on the
- * editing functionality without additional complexity.
- * Pseudocode:
-
-Class Definition: Editable
-Properties:
-
-isEditing: A boolean to track whether the content is currently in editing mode.
-originalContent: Store the original content before editing begins.
-Methods:
-
-constructor: Initialize the base properties and setup editing-related properties.
-
-Input: iBoxBase instance or properties needed to create one.
-Action: Initialize the base iBox and set up editing-related properties.
-startEditing: Enable editing mode.
-
-Action: Set isEditing to true, save the original content, and make the content area editable (e.g., by switching to a textarea or contenteditable element).
-stopEditing: Disable editing mode and save the changes.
-
-Action: Set isEditing to false, update the iBox content with the new value, and revert the content area to a non-editable state.
-cancelEditing: Disable editing mode without saving changes.
-
-Action: Set isEditing to false, revert the content to the original value, and revert the content area to a non-editable state.
-onContentChange: Event handler for tracking changes to the content during editing.
-
-Input: Event information.
-Action: Update any internal state or external listeners as needed.
-isEditable: Check if the box is currently editable (e.g., not locked or disabled).
-
-Output: Returns a boolean indicating whether the box is editable.
-getContent: Retrieve the current content, whether editing or not.
-
-Output: Returns the current content as a string or appropriate data type.
-setContent: Set the content, whether editing or not.
-
-Input: New content as a string or appropriate data type.
-Action: Update the content area with the new value, whether editing or not.
-End of Class Definition.
+ * File: Editable.js
+ * Version: 1.0.0
+ * Dependencies: ExpandCollapse (Inherits from the ExpandCollapse component)
+ * Description: Editable functionality expansion for iBox.
+ *              This module extends the ExpandCollapse component to enable the ability to edit labels within the iBox instances.
+ * 
+ * Class Definition: Editable (Inherits from ExpandCollapse)
+ * 
+ * Properties:
+ * - editState: Object containing the edit state information for each iBox, such as the current edited text.
+ * 
+ * Constructor: (element, options)
+ * - Initializes the Editable functionality with a given DOM element and options, calling the ExpandCollapse constructor.
+ * 
+ * Methods:
+ * - startEditing(iBoxId): Begins the editing process for the specified iBox's label, storing the initial state.
+ * - stopEditing(iBoxId): Ends the editing process for the specified iBox, updating its final state.
+ * - updateLabel(iBoxId, newText): Updates the label of the specified iBox with the given new text.
+ * - renderEditState(): Renders the iBoxes based on their current edit state, reflecting any changes in the labels.
+ * 
+ * Utility Functions:
+ * - isEditing(iBoxId): Returns a boolean indicating whether the specified iBox's label is currently being edited.
+ * - getEditableElement(iBoxId): Retrieves the editable element for the specified iBox's label.
+ * 
+ * End of File Definition.
  */
-class EditableIBox extends iBoxBase {
-    // Implementation...
-  }
-  

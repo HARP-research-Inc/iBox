@@ -1,0 +1,23 @@
+/* iBox Children Container Styles */
+
+.ibox-children-container {
+    box-sizing: border-box;
+    position: relative;
+    overflow: hidden;
+    padding: 0px;
+    padding-left: 5px;
+    flex-grow: 0.0000001; /* Start with almost no size */
+    flex-shrink: 1; /* Allow it to shrink */
+    max-height: 0px; /* Start with no height */
+    width: auto; /* Make it as wide as its children */
+    min-width: 100%;
+    z-index: 0; /* Stack below corner-container */
+    transition: all 500ms ease-in-out;
+}
+
+.interactive-box.expanded > .ibox-children-container {
+    flex-grow: 1; /* Allow it to grow */
+    max-height: 1000px; /* Set to a large enough value to accommodate content */
+    /*min-height can be used if you want a minimum size when expanded*/
+    padding: 5px;
+}

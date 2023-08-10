@@ -1,0 +1,75 @@
+/* Theme: Blazing Sunset */
+.theme-blazing-sunset {
+    --selected-primary-color: #FF5733;
+    --selected-secondary-color: #FFD1C4;
+    --selected-tertiary-color: #c72200;
+}
+
+/* Theme: Lavender Dream */
+.theme-lavender-dream {
+    --selected-primary-color: #AF7AC5;
+    --selected-secondary-color: #E4D4E9;
+    --selected-tertiary-color: #8D5CA2;
+}
+
+/* Theme: Ocean Blue */
+.theme-ocean-blue {
+    --selected-primary-color: #5499C7;
+    --selected-secondary-color: #C2D8E8;
+    --selected-tertiary-color: #3C7BA8;
+}
+
+/* Theme: Mint Splash */
+.theme-mint-splash {
+    --selected-primary-color: #48C9B0;
+    --selected-secondary-color: #B9E5D8;
+    --selected-tertiary-color: #319F8C;
+}
+
+/* Theme: Sunny Day */
+.theme-sunny-day {
+    --selected-primary-color: #F4D03F;
+    --selected-secondary-color: #FAEABD;
+    --selected-tertiary-color: #D1B72B;
+}
+
+/* Theme: Golden Hour */
+.theme-golden-hour {
+    --selected-primary-color: #F39C12;
+    --selected-secondary-color: #F9D7A1;
+    --selected-tertiary-color: #D58506;
+}
+
+/* Theme: Autumn Rust */
+.theme-autumn-rust {
+    --selected-primary-color: #D35400;
+    --selected-secondary-color: #EFA980;
+    --selected-tertiary-color: #B04300;
+}
+
+/* Theme: Steel */
+.theme-steel {
+    --selected-primary-color: #B3B6B7;
+    --selected-secondary-color: #E1E3E3;
+    --selected-tertiary-color: #8D9091;
+}
+
+/* Theme: Emerald */
+.theme-emerald {
+    --selected-primary-color: #2ECC71;
+    --selected-secondary-color: #A9E5B8;
+    --selected-tertiary-color: #29B65A;
+}
+
+/* Theme: Chili Red */
+.theme-chili-red {
+    --selected-primary-color: #E74C3C;
+    --selected-secondary-color: #F6B8B1;
+    --selected-tertiary-color: #CF3929;
+}
+
+.theme-rainbow {
+    --selected-primary-color: rainbow;
+    --selected-secondary-color: rainbow-secondary;
+    --selected-tertiary-color: rainbow-tertiary;
+}
