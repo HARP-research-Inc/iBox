@@ -206,7 +206,8 @@ iBox
 │   │   ├── ibox-children.css
 │   │   ├── ibox-corner.css
 │   │   ├── ibox-general.css
-│   │   └── styles.css
+│   │   ├── styles.css
+│   │   └── themes.css
 │   │
 │   └── index.js
 │

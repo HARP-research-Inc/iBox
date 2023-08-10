@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script src="../src/base/iBoxBase.js"></script>
+    <script src="../src/expansions/Children.js"></script>
+    <link rel="stylesheet" href="../src/styles/styles.css">
+</head>
+
+<body>
+    <div class="flex-container">
+        <section class="childrenbox-container" id="childrenbox-container-1"></section>
+        <section class="childrenbox-container" id="childrenbox-container-2"></section>
+
+        <div class="controls">
+            <button onclick="addChildBox()">Add Child iBox</button>
+            <button onclick="removeChildBox()">Remove Last Child iBox</button>
+            <button onclick="parseJsonToInteractiveBoxes()">Parse JSON to iBoxes</button>
+        </div>
+    </div>
+
+    <script type="module">
+
+        // Initialize the ChildrenBox once when the page loads
+        let childrenBox;
+
+        window.addEventListener('DOMContentLoaded', (event) => {
+            childrenBox = new window.ChildrenBox(document.getElementById('childrenbox-container-1'), {});
+        });
+
+        window.addChildBox = function() {
+            childrenBox.addChildBox({/* Add child options as required */});
+        };
+
+        window.removeChildBox = function() {
+            if (childrenBox.children.length > 0) {
+                const lastChildId = childrenBox.children[childrenBox.children.length - 1].id;
+                childrenBox.removeChildBox(lastChildId);
+            }
+        };
+
+        window.parseJsonToInteractiveBoxes = function() {
+            const json = [
+                {/* Add child JSON representation as required */}
+            ];
+            childrenBox.parseJsonToInteractiveBoxes(json);
+        };
+    </script>
+</body>
+
+</html>

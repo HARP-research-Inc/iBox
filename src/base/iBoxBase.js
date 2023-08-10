@@ -1,30 +1,37 @@
 /**
  * File: iBoxBase.js
- * Version: 1.2.0
+ * Version: 1.3.0
+ * Author: Harper Chisari
  * Dependencies: None specified (could be React, based on previous information)
- * Description: Base iBox component, containing the minimal functionality of the iBox without any expansions.
+ * Description: Base iBox component, containing the minimal functionality of the iBox with expandable and collapsible features and theming.
  * 
  * Class Definition: iBoxBase
  * 
  * Properties:
  * - element: Reference to the DOM element representing the iBox.
- * - options: Object containing configuration options for the iBox.
- * - themes: Array of theme objects containing styling information.
+ * - colors: Array of predefined colors for the themes.
+ * - theme: Selected theme index (1 to 11) for the iBox.
+ * - defaultOptions: Object containing default configuration options for the iBox.
+ * - options: Object containing merged configuration options for the iBox.
  * 
- * Constructor: (element, options)
- * - Initializes the iBox with a given DOM element and options.
+ * Constructor: (element, options = {}, theme = 1)
+ * - Initializes the iBox with a given DOM element and options, and sets the theme.
  * 
  * Methods:
- * - initialize(): Sets up the iBox, applies default settings.
+ * - initialize(): Sets up the iBox, applies default settings, and renders initial dimensions and label.
  * - createiBox(): Creates the HTML structure of the iBox and applies the theme.
  * - destroy(): Cleans up resources and removes the iBox from the DOM.
- * - update(options): Updates the iBox configuration with new options.
  * - renderDimensions(): Sets the width, height, and position of the iBox.
  * - renderLabel(): Updates the label of the iBox.
  * - applyTheme(): Applies the selected theme to the iBox.
- * 
- * Utility Functions:
- * - None specified in this version. (If there are any utility functions or helpers specific to the iBoxBase class, they can be added here.)
+ * - getThemeClass(themeIndex): Returns the corresponding theme class for the given theme index.
+ * - update(options): Updates the iBox configuration with new options.
+ * - resize(width, height): Resizes the iBox to the specified dimensions.
+ * - move(x, y): Moves the iBox to the specified coordinates.
+ * - enable(): Enables interactions with the iBox.
+ * - disable(): Disables interactions with the iBox.
+ * - addEventListener(event, handler): Adds an event listener for the specified event.
+ * - removeEventListener(event, handler): Removes an event listener for the specified event.
  * 
  * End of File Definition.
  */
