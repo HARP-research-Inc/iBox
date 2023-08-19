@@ -18,6 +18,7 @@ TABLE OF CONTENTS
 4. iBox Themes
 ===========================*/
 
+
 /* Importing iBox General Styles */
 @import 'ibox-general.css';
 
@@ -29,3 +30,17 @@ TABLE OF CONTENTS
 
 /* Importing iBox Themes */
 @import 'themes.css';
+
+.flex-container {
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   height: 100vh;
+   width: 100vh;
+}
+
+.ibox-child-container {
+   display: flex;
+   flex-direction: row;
+   width: 100%;  /* Ensure it takes up the full width available to it */
+}

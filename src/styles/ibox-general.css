@@ -7,7 +7,7 @@
     border: 2px solid var(--primary-color);
     background-color: var(--secondary-color);
     position: relative;
-    margin: 10px;  /* Add a margin of 10px */
+    margin: 5px;  /* Add a margin of 10px */
     border-top-right-radius: 3px;
     border-bottom-left-radius: 3px;
     border-bottom-right-radius: 15px;

@@ -8,14 +8,6 @@
     <link rel="stylesheet" href="../src/styles/styles.css">
     <script src="../src/base/iBoxBase.js"></script>
     <style>
-        .flex-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            height: 100vh;
-            width: 100vh;
-        }
-
         .controls {
             margin-bottom: 20px;
             display: flex;
@@ -25,7 +17,6 @@
             gap: 10px;
             min-width: 100vh;
         }
-
         .ibox-wrapper {
             display: flex;
             flex-direction: row;
@@ -34,7 +25,7 @@
             width: 100%;  /* Ensure it takes up the full width available to it */
         }
 
-        .ibox-container {
+            .ibox-container {
             position: relative;
             margin: 10px;
             /* Optional: for some spacing between iBoxes */
@@ -75,31 +66,21 @@
         let currentIBox3 = new window.iBoxBase(document.getElementById('ibox-container-3'));
 
         function updateiBox() {
-            const themeName = document.getElementById('themeSelector').value;
+            const theme = parseInt(document.getElementById('themeSelector').value);
             const labelText = document.getElementById('iboxLabel').value;
             const isExpanded = document.getElementById('isExpanded').checked;
 
-            // Find the theme index by its name
-            const theme = parseInt(document.getElementById('themeSelector').value);
-
-            // Update properties of existing iBox instances
-            currentIBox1.update({
-                labelText: labelText,
-                isExpanded: isExpanded,
-                theme: theme
+            // Create a JSON string to update the iBoxes
+            const updatedJson = JSON.stringify({
+                name: labelText,
+                theme: theme,
+                isExpanded: isExpanded // Include the expanded state in the JSON
             });
 
-            currentIBox2.update({
-                labelText: labelText,
-                isExpanded: isExpanded,
-                theme: theme
-            });
-
-            currentIBox3.update({
-                labelText: labelText,
-                isExpanded: isExpanded,
-                theme: theme
-            });
+            // Update properties of existing iBox instances using the JSON string
+            currentIBox1.update(updatedJson);
+            currentIBox2.update(updatedJson);
+            currentIBox3.update(updatedJson);
 
             // Add children to the second and third iBox instances
             currentIBox2.element.querySelector('.ibox-children-container').innerHTML = `

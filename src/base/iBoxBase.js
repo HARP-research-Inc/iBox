@@ -1,32 +1,37 @@
 /**
- * File: iBoxBase.js
+ *? ._   ._     _      ____     ____
+ *? ||   ||    /_\        \\       \\
+ *? ||===||   // \\    ___//    ___//
+ *? ||   ||  //   \\  ||       ||
+ *
+ *? File: iBoxBase.js
  * Version: 1.3.0
- * Author: Harper Chisari
- * Dependencies: None specified (could be React, based on previous information)
- * Description: Base iBox component, containing the minimal functionality of the iBox with expandable and collapsible features and theming.
+ *? Author: Harper Chisari
+ * Dependencies: None
+ * Description: Base iBox component, containing the minimal functionality of the iBox with expandable and collapsible features, theming, and unique identifier (UID) generation.
  * 
- * Class Definition: iBoxBase
+ * ?Class Definition: iBoxBase
  * 
- * Properties:
+ * ?Properties:
  * - element: Reference to the DOM element representing the iBox.
- * - colors: Array of predefined colors for the themes.
+ * - json: JSON object containing configuration options for the iBox.
+ * - uid: Unique identifier for the iBox instance.
  * - theme: Selected theme index (1 to 11) for the iBox.
- * - defaultOptions: Object containing default configuration options for the iBox.
- * - options: Object containing merged configuration options for the iBox.
+ * - isExpanded: Boolean indicating whether the iBox is expanded or collapsed.
+ * - labelText: Text for the iBox label.
+ * - colors: Array of predefined colors for the themes.
  * 
- * Constructor: (element, options = {}, theme = 1)
- * - Initializes the iBox with a given DOM element and options, and sets the theme.
+ * ?Constructor: (element, json = '{"default": {"name": "iBox Label", "theme": 1, "children": {}, "isExpanded": false}}')
+ * - Initializes the iBox with a given DOM element and JSON configuration, generates a UID, and sets properties.
  * 
- * Methods:
- * - initialize(): Sets up the iBox, applies default settings, and renders initial dimensions and label.
+ * ?Methods:
+ * - initialize(): Sets up the iBox, applies default settings, and renders initial label.
  * - createiBox(): Creates the HTML structure of the iBox and applies the theme.
  * - destroy(): Cleans up resources and removes the iBox from the DOM.
- * - renderDimensions(): Sets the width, height, and position of the iBox.
  * - renderLabel(): Updates the label of the iBox.
  * - applyTheme(): Applies the selected theme to the iBox.
  * - getThemeClass(themeIndex): Returns the corresponding theme class for the given theme index.
- * - update(options): Updates the iBox configuration with new options.
- * - resize(width, height): Resizes the iBox to the specified dimensions.
+ * - update(json): Updates the iBox configuration with new JSON options.
  * - move(x, y): Moves the iBox to the specified coordinates.
  * - enable(): Enables interactions with the iBox.
  * - disable(): Disables interactions with the iBox.
@@ -36,38 +41,81 @@
  * End of File Definition.
  */
 
+
 class iBoxBase {
-    constructor(element, options = {}, theme = 1) {
-        this.element = typeof element === 'string' ? document.querySelector(element) : element;
-
-        // Colors
+    constructor(element, json = '{"default": {"name": "iBox", "theme": 1, "children": [], "isExpanded": false}}', initialize_box = true) {
+        // Define the default JSON object
+        console.log("CONSTRUCTOR: Building iBoxBase with JSON: " + json);
+        const defaultJsonObj = { "name": "iBox", "theme": 1, "children": [], "isExpanded": false };
+      
+        try {
+          // Attempt to parse the JSON input
+          const parsedJson = JSON.parse(json);
+          const firstKey = Object.keys(parsedJson)[0];
+      
+          // Check if the first key is "name", and if so, generate a UID
+          if (firstKey === 'name') {
+            this.uid = this.generateUniqueUID();
+            this.json = { [this.uid]: { ...defaultJsonObj, ...parsedJson } };
+          } else {
+            this.uid = firstKey;
+            this.json = { [firstKey]: { ...defaultJsonObj, ...parsedJson[firstKey] } };
+          }
+        } catch (e) {
+          console.log("CONSTRUCTOR: Failed to parse JSON: " + json);
+          // If parsing fails, use the default JSON object
+          this.uid = this.generateUniqueUID();
+          this.json = { [this.uid]: defaultJsonObj };
+        }
+      
+        console.log("CONSTRUCTOR: Updated JSON: " + JSON.stringify(this.json));
+      
+        // You can access properties from the JSON object as needed
+        this.theme = this.json[this.uid].theme;
+        this.isExpanded = this.json[this.uid].isExpanded;
+        this.labelText = this.json[this.uid].name;
+      
+        // Colors 
         this.colors = ['#FF5733', '#AF7AC5', '#5499C7', '#48C9B0', '#F4D03F', '#F39C12', '#D35400', '#B3B6B7', '#2ECC71', '#E74C3C'];
-        this.theme = theme > 11 || theme < 1 ? 1 : theme;
 
-        // Default options
-        this.defaultOptions = {
-            labelText: "iBox Label",
-        };
+        // Initialize with the JSON object
+        if (initialize_box === true) {
+            this.initialize(element);
+        }
+    }    
 
-        // Merge default options with provided options
-        this.options = Object.assign({}, this.defaultOptions, options);
+    generateUniqueUID() {
+        let uid;
+        do {
+            uid = 'UID_' + Math.random().toString(36).substr(2, 9);
+        } while (document.getElementById(uid));
 
-        this.initialize();
+        return uid;
     }
 
-    initialize() {
+    initialize(element) {
+        console.log("INITIALIZE: Building iBoxBase with JSON: " + JSON.stringify(this.json))
+        // Set the element property using the provided element argument
+        this.element = typeof element === 'string' ? document.querySelector(element) : element;
+
+        // Modify this and the functoins within so it it takes in json, maybe add it as passed in parameters
         this.createiBox();      // Create the initial HTML structure and apply theme.
-        this.renderDimensions();  // Set initial dimensions.
-        this.renderLabel()      // Set initial Label
+
+        const interactiveBoxElement = this.element.querySelector('#' + this.uid);
+        
+        // Modify this so it it takes in json color json if provided
+        this.applyTheme(interactiveBoxElement); // Apply theme after creating the HTML structure.
+        this.renderLabel(interactiveBoxElement)      // Set initial Label
+        if (this.isExpanded) {this.expand();}          // Expand the iBox if it is set to expanded in the JSON
     }
 
     createiBox() {
         this.element.innerHTML = `
-        <div class="interactive-box ${this.options.isExpanded ? "expanded" : ""}">
-        <div class="ibox-children-container"></div>
-        <button class="collapse-button">-</button>
+        <div id="${this.uid}" class="interactive-box">
+        <div id="${this.uid}_children" class="ibox-children-container"></div>
+        <button id="${this.uid}_collapse" class="collapse-button">-</button>
             <div class="corner-box">
-                    <div class="label-handle">
+                    <div id="${this.uid}_handle"  class="label-handle">
                         <div class="drag-handle">
                             <span></span>
                             <span></span>
@@ -79,34 +127,26 @@ class iBoxBase {
                             <span></span>
                             <span></span>
                         </div>
-                        <span class="label-span">${this.options.labelText}</span>
+                        <span id="${this.uid}_name" class="label-span">${this.labelText}</span>
                     </div>
             </div>
-            <button class="expand-button">+</button>
+            <button id="${this.uid}_expand" class="expand-button">+</button>
         </div>`; //Edit code so that if MANGO is entered it will rianbow
 
-        this.applyTheme(); // Apply theme after creating the HTML structure.
     }
 
+    // modify so that it also modifies the json of the parent?
     destroy() {
         // Instead of removing the element, just clear its content
         this.element.innerHTML = '';
-    }
-
-    renderDimensions() {
-        this.element.style.width = `${this.options.width}px`;
-        this.element.style.height = `${this.options.height}px`;
-        this.element.style.left = `${this.options.x}px`;
-        this.element.style.top = `${this.options.y}px`;
     }    
 
-    renderLabel() {
-        const labelElement = this.element.querySelector('.label-span');
-        labelElement.textContent = this.options.labelText;
+    renderLabel(interactiveBoxElement) {
+        const labelElement = interactiveBoxElement.querySelector('#' + this.uid + '_name');
+        labelElement.textContent = this.labelText;
     }
 
-    applyTheme() {
-        const interactiveBoxElement = this.element.querySelector('.interactive-box');
+    applyTheme(interactiveBoxElement) {
     
         // Remove all existing theme classes
         interactiveBoxElement.classList.remove(
@@ -137,33 +177,46 @@ class iBoxBase {
         return themeClasses[themeIndex - 1];
     }
     
-    update(options) {
-        // Updates the iBox configuration with new options.
-        this.options = Object.assign({}, this.options, options);
-
-        if (options.theme !== undefined) {
-            this.theme = options.theme;
-            this.applyTheme();
-        }
-
-        if (options.labelText) {
-            this.renderLabel();
-        }
-
-        // Handle expanded class based on options
-        const interactiveBoxElement = this.element.querySelector('.interactive-box');
-        if (options.isExpanded) {
-            interactiveBoxElement.classList.add('expanded');
-        } else if (options.isExpanded === false) {
-            interactiveBoxElement.classList.remove('expanded');
-        }
+    expand(){
+        const interactiveBoxElement = this.element.querySelector('#' + this.uid);
+        console.log('UPDATE: Expanded');
+        interactiveBoxElement.classList.add('expanded');
     }
 
-    resize(width, height) {
-        // Resizes the iBox to the specified dimensions.
-        this.options.width = width;
-        this.options.height = height;
-        this.render();
+    collapse(){
+        const interactiveBoxElement = this.element.querySelector('#' + this.uid);
+        console.log('UPDATE: Collapsed');
+        interactiveBoxElement.classList.remove('expanded');
+    }
+
+    update(json) {
+        const interactiveBoxElement = this.element.querySelector('#' + this.uid);
+        // Parse the JSON input
+        const updatedJSON = JSON.parse(json);
+    
+        // Check if the theme has changed and update if necessary
+        if (updatedJSON.theme !== undefined && updatedJSON.theme !== this.theme) {
+            this.theme = updatedJSON.theme;
+            this.applyTheme(interactiveBoxElement);
+        }
+    
+        // Check if the label text has changed and update if necessary
+        if (updatedJSON.name && updatedJSON.name !== this.labelText) {
+            this.labelText = updatedJSON.name;
+            this.renderLabel(interactiveBoxElement);
+        }
+    
+        // Check if the expanded state has changed and update if necessary
+        if (updatedJSON.isExpanded !== undefined && updatedJSON.isExpanded !== this.isExpanded) {
+            this.isExpanded = updatedJSON.isExpanded;
+            if (this.isExpanded) {
+                console.log('UPDATE: Expanded');
+                this.expand();
+            } else {
+                console.log('UPDATE: Collapsed');
+                this.collapse();
+            }
+        }
     }
 
     move(x, y) {

@@ -5,46 +5,274 @@
     <script src="../src/base/iBoxBase.js"></script>
     <script src="../src/expansions/Children.js"></script>
     <link rel="stylesheet" href="../src/styles/styles.css">
+    <style>
+        .controls {
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            /* allow controls to wrap to next line */
+            align-items: center;
+            gap: 10px;
+            min-width: 100vh;
+        }
+
+        .ibox-wrapper {
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+            margin-top: 20px;
+            width: 100%;
+            /* Ensure it takes up the full width available to it */
+        }
+        .json-display {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+    </style>
 </head>
 
 <body>
     <div class="flex-container">
-        <section class="childrenbox-container" id="childrenbox-container-1"></section>
-        <section class="childrenbox-container" id="childrenbox-container-2"></section>
-
+        <section class="ibox-wrapper">
+            <div class="ibox-container" id="ibox-container-1"></div>
+            <div class="ibox-container" id="ibox-container-2"></div>
+        </section>
         <div class="controls">
+            <select id="child-select">
+                <!-- Options will be populated dynamically -->
+            </select>
+            <label for="themeSelector">Select a theme:</label>
+            <select id="themeSelector"></select>
+
+            <label for="iboxLabel">Label:</label>
+            <input type="text" id="iboxLabel" placeholder="iBox Label">
+
+            <label for="isExpanded">Expanded:</label>
+            <input type="checkbox" id="isExpanded">
+
+            <button onclick="collectChildren()">Collect Children</button>
+            <button onclick="updateiBoxCall()">Update iBox</button>
+            <button id="toggleExpansion">Toggle Expansion</button>
             <button onclick="addChildBox()">Add Child iBox</button>
-            <button onclick="removeChildBox()">Remove Last Child iBox</button>
+            <button onclick="removeChildBox()">Remove Selected iBox</button>
             <button onclick="parseJsonToInteractiveBoxes()">Parse JSON to iBoxes</button>
+            <textarea id="json-input" rows="4" cols="50" placeholder="Enter JSON here"></textarea>
         </div>
+        <div class="json-display">
+            <h3>JSON Representation:</h3>
+            <pre id="json-display-box"></pre>
+        </div>        
     </div>
 
     <script type="module">
+        // Initialize the ChildrenBox once when the page loads
+        const defaultJson = '{"name": "Parent iBox", "theme": 2, "isExpanded": true, "children": [{"name": "Child iBox", "theme": 3}, {"name": "Child iBox 2", "theme": 4}]}';
 
         // Initialize the ChildrenBox once when the page loads
-        let childrenBox;
-
         window.addEventListener('DOMContentLoaded', (event) => {
-            childrenBox = new window.ChildrenBox(document.getElementById('childrenbox-container-1'), {});
+            let childrenBox = new window.ChildrenBox(document.getElementById('ibox-container-1'), defaultJson);
+            let currentIBox1 = new window.ChildrenBox(document.getElementById('ibox-container-2'));
+
+
+            updatedBoxSelect();
         });
 
-        window.addChildBox = function() {
-            childrenBox.addChildBox({/* Add child options as required */});
-        };
+        window.updateiBoxCall = function () {
+            updateiBox();
+            updatedBoxSelect();
+        }
 
-        window.removeChildBox = function() {
-            if (childrenBox.children.length > 0) {
-                const lastChildId = childrenBox.children[childrenBox.children.length - 1].id;
-                childrenBox.removeChildBox(lastChildId);
+        function updateSelectediBoxFields() {
+            const select = document.getElementById('child-select');
+            const selectedUid = select.value;
+            const selectedInstance = window.iBoxMap.get(selectedUid);
+
+            if (selectedInstance) {
+                // Update the JSON entry
+                const jsonInput = document.getElementById('json-input');
+                jsonInput.value = JSON.stringify(selectedInstance.json[selectedInstance.uid]);
+
+                // Update the label input
+                const labelInput = document.getElementById('iboxLabel');
+                labelInput.value = selectedInstance.labelText;
+
+                // Update the expanded checkbox
+                const isExpandedCheckbox = document.getElementById('isExpanded');
+                isExpandedCheckbox.checked = selectedInstance.isExpanded;
+
+                // Update the theme selector
+                const themeSelector = document.getElementById('themeSelector');
+                themeSelector.value = selectedInstance.theme;
+            } else {
+                // Clear the fields if no valid iBox is selected
+                document.getElementById('json-input').value = '';
+                document.getElementById('iboxLabel').value = '';
+                document.getElementById('isExpanded').checked = false;
+                document.getElementById('themeSelector').value = ''; // Clear the theme selector as well
+            }
+            // Update the JSON display box
+            const jsonDisplayBox = document.getElementById('json-display-box');
+            if (selectedInstance) {
+                jsonDisplayBox.textContent = JSON.stringify(selectedInstance.json[selectedInstance.uid], null, 2);
+            } else {
+                jsonDisplayBox.textContent = '';
+            }
+        }
+
+        // Add the event listener to the select element
+        document.getElementById('child-select').addEventListener('change', updateSelectediBoxFields);
+
+        function updatedBoxSelect() {
+            const select = document.getElementById('child-select');
+            const prev_value = select.value;
+            select.innerHTML = '';
+            const option = document.createElement('option');
+            option.textContent = `Select an iBox`;
+            select.appendChild(option);
+
+            console.log('UPDATE: Updating options from DOM map', window.iBoxMap);
+            // Iterate through the map
+            window.iBoxMap.forEach((instance) => {
+                const uid = instance.uid;
+                const name = instance.labelText;
+
+                const option = document.createElement('option');
+                option.value = uid;
+                option.textContent = `${uid} - ${name}`;
+                select.appendChild(option);
+                console.log(`UPDATE: Adding ${uid} - ${name} with parent ${instance.element.id} to options from DOM map`);
+            });
+
+            if (Array.from(select.options).some(option => option.value === prev_value)) {
+                select.value = prev_value; // Restore the previous selection if it still exists
+            }
+
+            updateSelectediBoxFields();
+        }
+
+        window.collectChildren = function () {
+            // Get the selected iBox UID from the select element
+            const select = document.getElementById('child-select');
+            const selectedUid = select.value;
+
+            const instance = window.iBoxMap.get(selectedUid);
+            if (instance) {
+                console.log(`Collapsing children for iBox with UID ${selectedUid}`);
+                instance.collectChildren(); // Call the collectChildren method on the selected iBox instance
+                updateiBoxCall(); // Refresh the UI if needed
+            } else {
+                console.log(`No iBox instance found for UID ${selectedUid}`);
             }
         };
 
-        window.parseJsonToInteractiveBoxes = function() {
-            const json = [
-                {/* Add child JSON representation as required */}
-            ];
-            childrenBox.parseJsonToInteractiveBoxes(json);
+        function updateiBox() {
+            const theme = parseInt(document.getElementById('themeSelector').value);
+            const labelText = document.getElementById('iboxLabel').value;
+            const isExpanded = document.getElementById('isExpanded').checked;
+
+            // Create a JSON object to update the iBoxes
+            const updatedJson = {
+                name: labelText,
+                theme: theme,
+                isExpanded: isExpanded // Include the expanded state in the JSON
+            };
+
+            // Get the selected iBox UID from the select element
+            const select = document.getElementById('child-select');
+            const selectedUid = select.value;
+
+            const instance = window.iBoxMap.get(selectedUid);
+            if (instance) {
+                console.log(`Attempting to update ${selectedUid} with JSON: ${JSON.stringify(updatedJson)}`);
+                instance.update(JSON.stringify(updatedJson));
+            } else {
+                console.log(`No iBox instance found for UID ${selectedUid}`);
+            }
+        }
+
+        window.addChildBox = function () {
+            console.log('Generating new child box');
+            const jsonInput = document.getElementById('json-input').value;
+            // Assuming childrenBox is the parent you want to add children to
+            const select = document.getElementById('child-select');
+            const selectedUid = select.value;
+
+            const parentInstance = window.iBoxMap.get(selectedUid);
+
+            console.log
+            parentInstance.addChildBox({});
+
+            updateiBoxCall();
         };
+
+        window.removeChildBox = function () {
+            const select = document.getElementById('child-select');
+            const selectedUid = select.value;
+            if (selectedUid) {
+                // Find the iBox instance with the selected UID
+                const instance = window.iBoxMap.get(selectedUid);
+                if (instance) {
+                    // Assuming the parent is stored in the instance
+                    instance.parent.removeChildBox(selectedUid);
+
+                    // Get the iBox element (assuming it is identifiable by its UID)
+                    const iboxElement = document.getElementById(selectedUid);
+
+                    // Remove the iBox element from the map
+                    window.iBoxMap.delete(selectedUid);
+
+                    // Remove the iBox element from the DOM (if it exists)
+                    if (iboxElement) {
+                        iboxElement.parentElement.removeChild(iboxElement);
+                    }
+
+                    // Assuming updatedBoxSelect is a function that updates the select box
+                    updatedBoxSelect();
+                } else {
+                    console.warn(`No iBox instance found with UID ${selectedUid}`);
+                }
+            } else {
+                console.warn('No UID selected for removal');
+            }
+        };
+
+        window.parseJsonToInteractiveBoxes = function () {
+            // Existing code
+        };
+
+
+        function populateThemeOptions() {
+            const themeSelector = document.getElementById('themeSelector');
+            const themeNames = [
+                "Blazing Sunset", "Lavender Dream", "Ocean Blue", "Mint Splash",
+                "Sunny Day", "Golden Hour", "Autumn Rust", "Steel",
+                "Emerald", "Chili Red", "Secret"  // Add "Rainbow" as the secret theme
+            ];
+
+            themeNames.forEach((name, index) => {
+                const option = document.createElement('option');
+                option.value = index + 1; // Theme index starts at 1
+                option.textContent = name;
+                themeSelector.appendChild(option);
+            });
+        }
+
+        window.onload = () => {
+            // Populate theme options
+            populateThemeOptions();
+
+            // Set initial properties for iBox instances on page load
+            updateiBox();
+        };
+
+        document.getElementById('toggleExpansion').addEventListener('click', function () {
+            const isExpandedCheckbox = document.getElementById('isExpanded');
+            isExpandedCheckbox.checked = !isExpandedCheckbox.checked; // Toggle the checkbox
+            updateiBox(); // Update the iBoxes to reflect the new state
+        });
     </script>
 </body>
 
