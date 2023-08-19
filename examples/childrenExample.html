@@ -16,6 +16,13 @@
             min-width: 100vh;
         }
 
+        .json-import-controls {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
         .ibox-wrapper {
             display: flex;
             flex-direction: row;
@@ -24,6 +31,7 @@
             width: 100%;
             /* Ensure it takes up the full width available to it */
         }
+
         .json-display {
             margin-top: 20px;
             padding: 10px;
@@ -39,6 +47,7 @@
         <section class="ibox-wrapper">
             <div class="ibox-container" id="ibox-container-1"></div>
             <div class="ibox-container" id="ibox-container-2"></div>
+            <div class="ibox-container" id="ibox-container-3"></div>
         </section>
         <div class="controls">
             <select id="child-select">
@@ -54,17 +63,23 @@
             <input type="checkbox" id="isExpanded">
 
             <button onclick="collectChildren()">Collect Children</button>
+            <button onclick="displayCleanJson()">Clean JSON</button>
             <button onclick="updateiBoxCall()">Update iBox</button>
             <button id="toggleExpansion">Toggle Expansion</button>
             <button onclick="addChildBox()">Add Child iBox</button>
             <button onclick="removeChildBox()">Remove Selected iBox</button>
             <button onclick="parseJsonToInteractiveBoxes()">Parse JSON to iBoxes</button>
-            <textarea id="json-input" rows="4" cols="50" placeholder="Enter JSON here"></textarea>
+            <textarea id="json-input" rows="4" cols="50" placeholder="Enter Clean JSON here"></textarea>
+        </div>
+        <div class="json-import-controls">
+            <label for="clean-json-input">Import Clean JSON:</label>
+            <textarea id="clean-json-input" rows="2" cols="50" placeholder="Enter any JSON here"></textarea>
+            <button onclick="importCleanJson()">Import Clean JSON</button>
         </div>
         <div class="json-display">
             <h3>JSON Representation:</h3>
             <pre id="json-display-box"></pre>
-        </div>        
+        </div>
     </div>
 
     <script type="module">
@@ -84,6 +99,56 @@
             updateiBox();
             updatedBoxSelect();
         }
+
+        // In the global scope
+        window.processJson = function (jsonValue, containerElementId) {
+            const processValue = (value) => {
+                if (Array.isArray(value)) {
+                    // If the value is an array, process each item in the array
+                    return value.map(item => processValue(item));
+                } else if (typeof value === 'object') {
+                    // If the value is an object, create a parent element with children corresponding to keys
+                    return Object.entries(value).map(([key, childValue]) => ({
+                        name: key,
+                        children: processValue(childValue),
+                        isExpanded: true
+                    }));
+                } else {
+                    // Handle primitive values: create a child element with no children
+                    return [{ name: String(value), children: [] }];
+                }
+            };
+
+            // Process the input JSON
+            const cleanJson = processValue(jsonValue);
+            // If the result is an array with a single element, unwrap it
+            const finalJson = cleanJson.length === 1 ? cleanJson[0] : cleanJson;
+            new window.ChildrenBox(document.getElementById(containerElementId), JSON.stringify(finalJson));
+        };
+
+        window.importCleanJson = function () {
+            const cleanJsonInput = document.getElementById('clean-json-input').value;
+            const cleanJson = JSON.parse(cleanJsonInput);
+            window.processJson(cleanJson, 'ibox-container-3');
+        };
+
+
+        window.displayCleanJson = function () {
+            // Get the selected iBox UID from the select element
+            const select = document.getElementById('child-select');
+            const selectedUid = select.value;
+
+            const instance = window.iBoxMap.get(selectedUid);
+            if (instance) {
+                // Call the collectCleanJson method on the selected iBox instance
+                const cleanJson = instance.collectCleanJson();
+                // Update the JSON display box
+                const jsonDisplayBox = document.getElementById('json-display-box');
+                jsonDisplayBox.textContent = JSON.stringify(cleanJson, null, 2);
+            } else {
+                console.log(`No iBox instance found for UID ${selectedUid}`);
+            }
+        };
 
         function updateSelectediBoxFields() {
             const select = document.getElementById('child-select');
@@ -240,7 +305,9 @@
         };
 
         window.parseJsonToInteractiveBoxes = function () {
-            // Existing code
+            const jsonInput = document.getElementById('json-input');
+            let currentIBox3 = new window.ChildrenBox(document.getElementById('ibox-container-3'), jsonInput.value);
+            updateiBoxCall();
         };
 
 

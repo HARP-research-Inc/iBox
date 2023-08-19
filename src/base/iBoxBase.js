@@ -181,12 +181,16 @@ class iBoxBase {
         const interactiveBoxElement = this.element.querySelector('#' + this.uid);
         console.log('UPDATE: Expanded');
         interactiveBoxElement.classList.add('expanded');
+        this.json[this.uid].isExpanded = true;
+        this.isExpanded = true;
     }
 
     collapse(){
         const interactiveBoxElement = this.element.querySelector('#' + this.uid);
         console.log('UPDATE: Collapsed');
         interactiveBoxElement.classList.remove('expanded');
+        this.json[this.uid].isExpanded = false;
+        this.isExpanded = false;
     }
 
     update(json) {
@@ -217,7 +221,7 @@ class iBoxBase {
                 this.collapse();
             }
         }
-    }
+    }//{"HELLO":["WORLD"]}
 
     move(x, y) {
         // Moves the iBox to the specified coordinates.
