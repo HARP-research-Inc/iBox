@@ -1,3 +1,39 @@
+<!--
+? ._   ._     _      ____     ____
+? ||   ||    /_\        \\       \\
+? ||===||   // \\    ___//    ___//
+? ||   ||  //   \\  ||  \\   ||
+
+? File: iBoxInterface.html
+Version: 1.0.0
+? Author: Harper Chisari
+Dependencies:
+- iBoxBase.js (Base iBox component)
+- Children.js (Child generation and JSON interaction functionality for iBox)
+- styles.css (Stylesheet for iBox components)
+Description: Main interface for managing and interacting with iBox and ChildrenBox components. Provides controls for theme selection, label editing, expansion, child manipulation, JSON parsing, and dynamic rendering.
+
+?Components:
+- iBox Containers: Wrappers for individual iBox instances.
+- Controls: Set of interactive elements for modifying iBox properties and triggering actions.
+- JSON Import Controls: Interface for importing clean JSON data.
+- JSON Display: A container for visualizing the current state of the iBox JSON representation.
+
+?Features:
+- Initialize and manage iBox and ChildrenBox instances.
+- Modify iBox properties through user controls (theme, label, expansion).
+- Add and remove child iBox instances.
+- Parse JSON to create interactive iBoxes.
+- Display and import clean JSON representations.
+- Apply predefined themes and allow theme customization.
+
+?Note:
+- Ensure correct paths for script and style dependencies.
+- Keep the JavaScript code within the script tag or an external file for modularity.
+
+End of File Definition.
+-->
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -62,19 +98,20 @@
             <label for="isExpanded">Expanded:</label>
             <input type="checkbox" id="isExpanded">
 
-            <button onclick="collectChildren()">Collect Children</button>
             <button onclick="displayCleanJson()">Clean JSON</button>
             <button onclick="updateiBoxCall()">Update iBox</button>
             <button id="toggleExpansion">Toggle Expansion</button>
             <button onclick="addChildBox()">Add Child iBox</button>
-            <button onclick="removeChildBox()">Remove Selected iBox</button>
+            <button onclick="deleteSelectediBox()">Delete Selected iBox</button>
             <button onclick="parseJsonToInteractiveBoxes()">Parse JSON to iBoxes</button>
+            <button id="reconstruct-button">Reconstruct JSON</button>
+            <pre id="reconstructed-json-display-box"></pre>
             <textarea id="json-input" rows="4" cols="50" placeholder="Enter Clean JSON here"></textarea>
         </div>
         <div class="json-import-controls">
-            <label for="clean-json-input">Import Clean JSON:</label>
-            <textarea id="clean-json-input" rows="2" cols="50" placeholder="Enter any JSON here"></textarea>
-            <button onclick="importCleanJson()">Import Clean JSON</button>
+            <label for="arbitrary-json-input">Import Arbitrary JSON:</label>
+            <textarea id="arbitrary-json-input" rows="2" cols="50" placeholder="Enter any JSON here"></textarea>
+            <button onclick="importArbitraryJson()">Import Arbitrary JSON</button>
         </div>
         <div class="json-display">
             <h3>JSON Representation:</h3>
@@ -94,6 +131,20 @@
 
             updatedBoxSelect();
         });
+
+        document.getElementById('reconstruct-button').addEventListener('click', function () {
+            // Get the cleaned JSON. Modify this line to get the cleaned JSON from where it is stored in your code
+            const cleanedJsonString = document.getElementById('json-display-box').textContent;
+            const cleanedJson = JSON.parse(cleanedJsonString);
+
+            // Call the reconstructJson function
+            const originalJson = window.reconstructJson(cleanedJson);
+
+            // Display the reconstructed JSON in the reconstructed-json-display-box
+            const jsonDisplayBox = document.getElementById('reconstructed-json-display-box');
+            jsonDisplayBox.textContent = JSON.stringify(originalJson, null, 2);
+        });
+
 
         window.updateiBoxCall = function () {
             updateiBox();
@@ -126,29 +177,109 @@
             new window.ChildrenBox(document.getElementById(containerElementId), JSON.stringify(finalJson));
         };
 
-        window.importCleanJson = function () {
-            const cleanJsonInput = document.getElementById('clean-json-input').value;
+        window.importArbitraryJson = function () {
+            const cleanJsonInput = document.getElementById('arbitrary-json-input').value;
             const cleanJson = JSON.parse(cleanJsonInput);
             window.processJson(cleanJson, 'ibox-container-3');
         };
 
 
         window.displayCleanJson = function () {
+            console.log('DCJ: Displaying clean JSON');
+            // Function to recursively clean the JSON
+            function cleanJSONFunction(json) {
+                // Print the keys of the json object
+                console.log('DCJ: Cleaning JSON with keys: ', Object.keys(json));
+
+                // Print the type of the json object
+                console.log('DCJ: Cleaning JSON with type: ', typeof json);
+
+                // Create an empty object to store the cleaned JSON
+                const cleaned = {};
+
+                console.log('DCJ: Cleaning JSON', json);
+                // If the first key starts with UID_ set the json to the value inside the UID_ object
+                if (Object.keys(json)[0].startsWith('UID_')) {
+                    console.log('DCJ: Found UID: ', json[Object.keys(json)[0]]);
+                    json = json[Object.keys(json)[0]];
+                }
+
+                // Handle children array
+                if (Array.isArray(json.children)) {
+                    console.log('DCJ: Found children array: ', json.children);
+                    json.children.forEach(child => {
+                        console.log('DCJ: Cleaning child: ', child);
+                        const childCleaned = cleanJSONFunction(child);
+                        Object.assign(cleaned, childCleaned);
+                    });
+                } else {
+                    if (json.children) {
+                        console.log('DCJ: Found children property: ', json.children);
+                    } else {
+                        console.log('DCJ: No children array found');
+                    }
+                }
+
+                // If there is a name property, use it as the key
+                if (json.name) {
+                    console.log('DCJ: Found name property: ', json.name);
+                    return { [json.name]: cleaned };
+                }
+
+                return cleaned;
+            }
+
             // Get the selected iBox UID from the select element
             const select = document.getElementById('child-select');
             const selectedUid = select.value;
 
+            // Get the iBox instance from the map
             const instance = window.iBoxMap.get(selectedUid);
             if (instance) {
-                // Call the collectCleanJson method on the selected iBox instance
-                const cleanJson = instance.collectCleanJson();
-                // Update the JSON display box
+                console.log(`DCJ: Found iBox instance for UID ${selectedUid}`);
+                // Get its JSON property
+                let json = instance.json;
+
+                // Remove all theme, UID, and isExpanded properties
+                json = cleanJSONFunction(json);
+
+                // Display the clean JSON in the JSON display box
                 const jsonDisplayBox = document.getElementById('json-display-box');
-                jsonDisplayBox.textContent = JSON.stringify(cleanJson, null, 2);
+                jsonDisplayBox.textContent = JSON.stringify(json, null, 2);
             } else {
                 console.log(`No iBox instance found for UID ${selectedUid}`);
             }
         };
+
+        window.reconstructJson = function (cleanedJson) {
+            // Function to recursively reconstruct the original JSON
+            function reconstructFunction(cleaned) {
+                const reconstructed = {};
+                console.log('RCJ: Reconstructing JSON with keys: ', Object.keys(cleaned));
+
+                reconstructed.children = [];
+                for (const key in cleaned) {
+                    console.log('RCJ: Reconstructing name: ', key);
+                    // Append the child top the children list
+                    reconstructed.children.push({
+                        name: key,
+                        children: (reconstructFunction(cleaned[key]).children) || [],
+                    });
+                }
+
+                // If no children in the object, return an empty list
+                if (reconstructed.children.length === 0) {
+                    reconstructed.children = [];
+                }
+
+                return reconstructed;
+            }
+
+            // If children is empty, return nothing
+            const reconstructed = reconstructFunction(cleanedJson);
+            return (reconstructed.children[0]) || null;
+        };
+
 
         function updateSelectediBoxFields() {
             const select = document.getElementById('child-select');
@@ -273,7 +404,7 @@
             updateiBoxCall();
         };
 
-        window.removeChildBox = function () {
+        window.deleteSelectediBox = function () {
             const select = document.getElementById('child-select');
             const selectedUid = select.value;
             if (selectedUid) {
@@ -281,7 +412,7 @@
                 const instance = window.iBoxMap.get(selectedUid);
                 if (instance) {
                     // Assuming the parent is stored in the instance
-                    instance.parent.removeChildBox(selectedUid);
+                    instance.parent.deleteSelectediBox(selectedUid);
 
                     // Get the iBox element (assuming it is identifiable by its UID)
                     const iboxElement = document.getElementById(selectedUid);
@@ -339,6 +470,11 @@
             const isExpandedCheckbox = document.getElementById('isExpanded');
             isExpandedCheckbox.checked = !isExpandedCheckbox.checked; // Toggle the checkbox
             updateiBox(); // Update the iBoxes to reflect the new state
+            // Add a 500ms delay before updating the iBox listing to ensure the DOM is updated
+            setTimeout(() => {
+                updatedBoxSelect();
+            }, 501);
+
         });
     </script>
 </body>

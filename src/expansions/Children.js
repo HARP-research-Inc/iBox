@@ -2,308 +2,262 @@
  *? ._   ._     _      ____     ____
  *? ||   ||    /_\        \\       \\
  *? ||===||   // \\    ___//    ___//
- *? ||   ||  //   \\  ||       ||
+ *? ||   ||  //   \\  ||  \\   ||
  *
  *? File: Children.js
- * Version: 1.0.0
+ * Version: 1.2.0
  *? Author: Harper Chisari
  * Dependencies: iBoxBase (Inherits from the base iBox component)
- * Description: Child generation and JSON interaction functionality expansion for iBox. This module extends the base iBox component to enable child generation and interaction with JSON representations.
+ * Description: Child generation and JSON interaction functionality expansion for iBox. This module extends the base iBox component to enable child generation and interaction with JSON representations. Version 1.2 includes the ability to dynamically create and remove iBox instances and manage their lifecycle, including expand and collapse functionality.
  * 
  *? Class Definition: ChildrenBox (Inherits from iBoxBase)
  * 
  *? Properties:
- * - children: Array containing child iBox instances.
- * - jsonRepresentation: JSON object representing the current state of children.
+ * - children: Object containing child iBox instances, keyed by UID.
+ * - parentUid: UID of the parent iBox.
  * 
- *? Constructor: (element, options)
- * - Initializes the ChildrenBox with a given DOM element and options, calling the base iBox constructor.
+ *? Constructor: (element, json)
+ * - Initializes the ChildrenBox with a given DOM element and JSON, calling the base iBox constructor.
  * 
  *? Methods:
- * - addChildBox(childOptions): Adds a new child iBox with specified options.
- * - removeChildBox(childId): Removes a child iBox by its unique identifier.
- * - parseJsonToInteractiveBoxes(json): Parses a given JSON object into interactive iBox children.
- * - updateJsonRepresentation(): Updates the JSON object representing the current state of children.
- * - renderChildren(): Renders the child iBoxes based on current state.
- * 
- *? Utility Functions:
- * - generateChildUniqueId(): Generates a unique identifier for a new child iBox.
- * - validateChildJson(json): Validates a given JSON object for compatibility with child generation.
+ * - getChildrenElements(): Retrieves child iBox instances.
+ * - removeFromDOM(): Removes an iBox instance from the DOM.
+ * - deleteIBox(): Deletes an iBox instance entirely.
+ * - handleChildJson(json): Processes child JSON for creation.
+ * - addChildBox(input): Adds a new child iBox with specified options.
+ * - expand(): Expands children from JSON.
+ * - collapse(): Collapses children into JSON.
  * 
  * End of File Definition.
  */
 
-/**
- * Class: ChildrenBox (Inherits from iBoxBase)
- * Description: Child generation and JSON interaction functionality expansion for iBox.
- */
 class ChildrenBox extends window.iBoxBase {
-  constructor(element, json) {
-    super(element, json);
-    if (Array.isArray(this.json[this.uid].children)) {
-      const childrenObject = {};
-      this.json[this.uid].children.forEach((child, index) => {
-        const childUid = child.uid || this.generateUniqueUID();
-        childrenObject[childUid] = child;
-      });
-      this.children = childrenObject;
-    } else {
-      this.children = this.json[this.uid].children || {};
-    }
-
-    //Log children
-    console.log('CHILDREN CONSTRUCTOR: Children: ', this.children);
-    // Store a reference to this instance in the DOM element
-    element.childrenBoxInstance = this;
-
-    this.renderChildren();
-    //window.iBoxMap.set(this.uid, this);
-    console.log(`CHILDREN CONSTRUCTOR: Added iBox instance for element with ID ${this.uid} => ${this} to the global map.`);
+  constructor(parent, json) {
+    super(parent, json);
   }
 
-  addChildBox(input) {
-    console.log('ADD CHILD: Adding child...');
+  getChildrenElements() {
+    console.log('GET CHILDREN ELEMENTS: Getting children elements for element with ID: ', this.uid);
+    const childrenElements = [];
+    // Look for the children container inside the current element
+    const childrenContainer = this.element.querySelector('#' + this.uid + '_children');
+    if (childrenContainer) {
+      console.log('GET CHILDREN ELEMENTS: Found children container: ', childrenContainer);
+      // Iterate through the immediate children inside the children container
+      Array.from(childrenContainer.children).forEach((containerElement) => {
+        // Check if the child has the 'ibox-container' class
+        if (containerElement.classList.contains('ibox-container')) {
+          // Get the first element inside the 'ibox-container' (if any) and retrieve its ID
+          const childElement = containerElement.firstElementChild;
+          if (childElement) {
+            const childInstance = window.iBoxMap.get(childElement.id);
+            if (childInstance) {
+              childrenElements.push(childInstance);
+            }
+          }
+        }
+      });
+    } else {
+      console.log('GET CHILDREN ELEMENTS: No children container found for element with ID: ', this.uid);
+    }
+    return childrenElements;
+  }
+  
 
-    const updatedJson = {
-      isExpanded: true // Include the expanded state in the JSON
-    };
+  attatchIBox() {
+    console.log("ATTATCH IBOX(CHILDRENBOX): attaching current iBox to parent: ", this.parent);
+    // Check if the parent is an 'ibox'
+    if (this.parent.classList.contains('interactive-box')) {
+      console.log("ATTATCH IBOX(CHILDRENBOX): Parent is ibox, appending to direct children container: ", this.parent);
+      // Find the direct child with class 'ibox-children-container'
+      this.appendToParentIBox();
+    }
+    // Check if the parent is an 'ibox-children-container'
+    else if (this.parent.classList.contains('ibox-children-container')) {
+      console.log("ATTATCH IBOX(CHILDRENBOX): Parent is ibox-children-container, creating ibox-container and appending to parent: ", this.parent);
+      const holderElement = this.createContainer();
+      this.parent.appendChild(holderElement);
 
-    const instance = window.iBoxMap.get(this.uid);
-    instance.update(JSON.stringify(updatedJson)); // Update the JSON representation of the parent
-    let childData;
+      // Get the ID from the parent of the 'ibox-children-container' and set it to the parentUid property
+      const parentUid = this.parent.parentElement.id;
+      this.parentUid = parentUid;
 
-    // If the input is an empty string or not provided, generate a default child
-    if ((!input) || (input === '') || (Object.keys(input).length === 0)) {
-      const childCount = Object.keys(this.children).length + 1;
+      console.log("ATTATCH IBOX(CHILDRENBOX): Parent UID set to:", parentUid);
+    }
+
+    // Check if the parent is an 'ibox-container'
+    else if (this.parent.classList.contains('ibox-container')) {
+      console.log("ATTATCH IBOX(CHILDRENBOX): Parent is ibox-container, appending to children container: ", this.parent);
+      // Check if there's an ibox inside the parent
+      const ibox = this.parent.querySelector('.interactive-box');
+      if (ibox) {
+        console.log("ATTATCH IBOX(CHILDRENBOX): Parent has ibox, appending to children container: ", this.parent);
+        this.appendToParentIBox(ibox);
+      } else {
+        console.log("ATTATCH IBOX(CHILDRENBOX): iBox-container has no ibox, appending to parent: ", this.parent);
+        this.parent.appendChild(this.element);
+        this.checkForParentContainer();
+      }
+    }
+    // Append the element directly to the parent if it's not an 'ibox', 'ibox-children-container', or 'ibox-container'
+    else {
+      console.log("ATTATCH IBOX(CHILDRENBOX): Parent is not ibox, ibox-children-container, or ibox-container, creating holder element and appending to parent: ", this.parent);
+      const holderElement = this.createContainer();
+      this.parent.appendChild(holderElement);
+    }
+  }
+
+  checkForParentContainer() {
+    // Check if the parent above the 'ibox-container' is an 'ibox-children-container', and if so set the parentUid to the parent of the 'ibox-children-container'. Else set to null.
+    if (this.parent.parentElement.classList.contains('ibox-children-container')) {
+      const parentUid = this.parent.parentElement.parentElement.id;
+      this.parentUid = parentUid;
+      console.log("CHECK FOR PARENT: Parent UID set to:", parentUid);
+    } else // check if the parent above the 'ibox-container' is an 'ibox'
+      if (this.parent.parentElement.classList.contains('interactive-box')) {
+        console.log("CHECK FOR PARENT: Parent is ibox, appending to direct children container: ", this.parent);
+        const parentUid = this.parent.parentElement.id;
+        this.parentUid = parentUid;
+        console.log("CHECK FOR PARENT: Parent UID set to:", parentUid);
+      } else {
+        console.log("CHECK FOR PARENT: No children container above container, parent UID set to null");
+        this.parentUid = null;
+      }
+  }
+
+  appendToParentIBox(parentElement) {
+    // If no parentElement is provided, use the parent property
+    const parentIbox = parentElement ? parentElement : this.parent;
+    console.log("APPEND TO PARENT IBOX: Appending to parent ibox: ", parentIbox);
+    this.parentUid = parentIbox.id;
+
+    // Check for an 'ibox-children-container' inside the ibox
+    let childrenContainer;
+    for (const child of parentIbox.children) {
+      if (child.classList.contains('ibox-children-container')) {
+        childrenContainer = child;
+        break;
+      }
+    }
+    // If no 'ibox-children-container' exists, create one
+    if (!childrenContainer) {
+      console.log("APPEND TO PARENT IBOX: Parent has ibox, but no children container, creating one: ", parentIbox);
+      // Create an 'ibox-children-container' and append
+      childrenContainer = document.createElement('div');
+      childrenContainer.className = 'ibox-children-container';
+      ibox.appendChild(childrenContainer);
+    }
+    // Append the element to the children container
+    const holderElement = this.createContainer();
+    childrenContainer.appendChild(holderElement);
+  }
+
+  removeFromDOM() {
+    console.log('REMOVE FROM DOM(CHILDRENBOX): Removing iBox with ID: ', this.uid);
+
+    const children = this.getChildrenElements();
+    children.forEach((child) => {
+      console.log('REMOVE FROM DOM(CHILDRENBOX): Removing child with ID: ', child.uid);
+      child.removeFromDOM();
+    });
+    // Check if parentUid is set and add to JSON, else remove the element from the DOM
+    if (this.parentUid) {
+      // Add the child to the parent's JSON
+      console.log('REMOVE FROM DOM(CHILDRENBOX): Adding to iBox JSON with UID: ', this.parentUid);
+      this.parent = window.iBoxMap.get(this.parentUid);
+      this.parent.json[this.parentUid].children = this.parent.json[this.parentUid].children.concat(this.json[this.uid]);
+
+      console.log('REMOVE FROM DOM(CHILDRENBOX): New parent iBox JSON: ', this.parent.json);
+    }
+
+    // Add a 500ms delay before removing the iBox instance
+    setTimeout(() => {
+      super.destroy();
+    }, 500);
+  }
+
+  deleteIBox() {
+    console.log('DELETE IBOX : removeing element with ID: ', this.uid);
+    children = this.getChildrenElements();
+    children.forEach((child) => {
+      console.log('REMOVE FROM DOM: Removing child with ID: ', child.uid);
+      child.removeFromDOM();
+    });
+
+    // remove the iBox instance
+    super.destroy();
+  }
+
+  handleChildJson(json) {
+    let childJSON;
+
+    // Test if the input is valid JSON
+    if (json && typeof json === 'object' && json.name && typeof json.theme === 'number') {
+      childJSON = json;
+      console.log('HANDLE CHILD JSON: Adding child box with JSON:', json);
+    } else {
+      // If the input is not valid JSON, generate a default child
+      const childCount = Object.keys(this.getChildrenElements()).length + 1;
       const childName = `Child iBox ${childCount}`;
       const childTheme = (this.theme + childCount) % this.colors.length;
-      const childUid = this.generateUniqueUID();
 
-      childData = {
-        [childUid]: { name: childName, theme: childTheme, parentUid: this.uid } // Include the parent UID
-      };
-      console.log('ADD CHILD: Children object: ', childData);
-    } else if (typeof input === 'string') {
-      try {
-        childData = JSON.parse(input);
-        console.log('ADD CHILD: Adding child box with string input:', input);
-      } catch (error) {
-        console.error('ADD CHILD: Invalid JSON string:', input);
-        return;
-      }
+      childJSON = { name: childName, theme: childTheme }; // Simply pass the name and theme
+      console.log('HANDLE CHILD JSON: Children object: ', childJSON);
+    }
+
+    return JSON.stringify(childJSON);
+  }
+
+
+
+  addChildBox(json) {
+    // If the parent is collapsed, expand it
+    if (this.isExpanded === false) {
+      console.log('ADD CHILD: While collapsed, tried to add child to: ', this.uid);
+      this.isExpanded = true;
+      this.json[this.uid].isExpanded = true;
+      this.expand();
+
+      console.log('ADD CHILD: JSON ', JSON.stringify(this.json));
     } else {
-      childData = input;
-      console.log('ADD CHILD: Adding child box with input:', input);
+      console.log('ADD CHILD: iBox with UID: ', this.uid, ' is already expanded');
     }
+    
+    // Generate child JSON from input JSON
+    const updatedJson = this.handleChildJson(json);
+    console.log('ADD CHILD: Adding child with JSON: ', updatedJson);
 
-    // Add the child to children object using the UID as the key
-    const childUid = Object.keys(childData)[0];
-    this.children[childUid] = childData[childUid];
-
-    this.updateJsonRepresentation();
-    this.renderChildren();
+    // Create a new child instance
+    new window.ChildrenBox(this.element, updatedJson);
   }
 
-  removeChildBox(uid) {
-    if (this.children[uid]) {
-      delete this.children[uid]; // Remove child from children object
-      this.updateJsonRepresentation();
-      this.renderChildren();
+  expand() {
+    console.log('EXPAND-(CHILDRENBOX): Expanding iBox with UID: ', this.uid);
+    super.expand();
+    // Render the children
+    for (const child of this.json[this.uid].children) {
+      console.log('EXPAND-(CHILDRENBOX): Rendering child with JSON: ', child);
+      this.addChildBox(child);
     }
-  }
 
-  collectChildren() {
-    // Recursive function to traverse and collect all children along with their JSON
-    let collectChildren = (child, parentUid) => {
-      let collectedChildren = {};
-      for (let uid in child.children) {
-        collectedChildren[uid] = child.children[uid];
-        // Include the child's JSON, isExpanded, and parentUid
-        collectedChildren[uid].json = child.children[uid].json;
-        collectedChildren[uid].isExpanded = child.children[uid].isExpanded || false; // Default to false if not defined
-        collectedChildren[uid].parentUid = parentUid;
-
-        // Recursively collect children of children
-        if (child.children[uid].children) {
-          console.log('COLLECT CHILDREN: Recusrively collecting children for child with UID: ', uid);
-          collectedChildren[uid].children = collectChildren(child.children[uid], uid);
-        } else {
-          collectedChildren[uid].children = {};
-        }
-      }
-      return collectedChildren;
-    };
-
-    // Collapsing the children into the parent's JSON
-    this.json[this.uid].children = collectChildren(this, this.uid);
-    console.log('COLLECT CHILDREN: Collapsed JSON: ', JSON.stringify(this.json));
+    // Remove the children from the JSON
+    this.json[this.uid].children = [];
   }
 
 
-  updateJsonRepresentation() {
-    console.log('UPDATE JSON: Updating JSON representation for element with ID: ', this.uid);
-    this.json[this.uid].children = {};
-
-    // Iterate through the children and add them to the parent's JSON
-    for (const uid in this.children) {
-      console.log('UPDATE JSON: Adding child with UID: ', uid);
-      this.json[this.uid].children[uid] = this.children[uid];
-    }
-
-    this.collectChildren();
-
-    // If there is a parentUid, update the parent's JSON as well
-    if (this.json[this.uid].parentUid) {
-      const parentUid = this.json[this.uid].parentUid;
-      const parentInstance = window.iBoxMap.get(parentUid);
-
-      if (parentInstance) {
-        parentInstance.json[parentUid].children[this.uid] = this.json[this.uid];
-        console.log('UPDATE JSON: Updated parent JSON for element with ID:', parentUid);
-
-        // Recursively update the parent's JSON representation
-        parentInstance.updateJsonRepresentation();
-      }
-    }
-
-    console.log('UPDATE JSON: Updated JSON: ', JSON.stringify(this.json));
+  collapse() {
+    console.log('COLLAPSE(CHILDRENBOX): Collapsing iBox with UID: ', this.uid);
+    // Collapse the children
+    const children = this.getChildrenElements();
+    console.log('COLLAPSE(CHILDRENBOX): Found children: ', children);
+    children.forEach((child) => {
+      console.log('COLLAPSE(CHILDRENBOX): Collapsing child with UID: ', child.uid);
+      child.removeFromDOM();
+    });
+    super.collapse();
   }
-
-
-  renderChildren() {
-    console.log('RENDER CHILDREN: Rendering children for element with ID: ', this.uid);
-    console.log(this.element)
-    const parentChildrenContainer = this.element.querySelector('#' + this.uid + '_children');
-    window.iBoxMap.set(this.uid, this); // Store the rendered child in the map
-    // Render children only if the parent is expanded
-    const children = this.children;
-    if (this.isExpanded) {
-      console.log('RENDER CHILDREN: Parent is expanded. Rendering children.');
-      for (const uid in children) {
-        const child = this.children[uid];
-        const childJson = JSON.stringify(child);
-
-        // Check if the child has already been rendered
-        let childbox = window.iBoxMap.get(uid);
-        if (childbox) {
-          console.log('RENDER CHILDREN: Updating existing child with UID: ', uid);
-          // Update the existing child instance
-          childbox.update(childJson);
-        } else {
-          console.log('RENDER CHILDREN: Rendering new child with UID: ', uid);
-          // Create a separate container for each child
-          const childContainer = document.createElement('div');
-          childContainer.className = 'ibox-child-container';
-          parentChildrenContainer.appendChild(childContainer);
-
-          // Create a new child instance
-          childbox = new window.ChildrenBox(childContainer, childJson);
-          window.iBoxMap.set(uid, childbox); // Store the rendered child in the map
-
-          const updatedJson = { parent: this.uid };
-          childbox.update(JSON.stringify(updatedJson));
-        }
-
-        // Update the children object with the new child information
-        this.children[uid] = childbox.json[childbox.uid];
-        this.collectChildren();
-      }
-    } else {
-      console.log('RENDER CHILDREN: Parent is collapsed. Clearing children.');
-      console.log('parentChildrenContainer: ', parentChildrenContainer);
-      parentChildrenContainer.innerHTML = ``;
-      console.log('RENDER CHILDREN: Map before clearing children: ', window.iBoxMap);
-      console.log('RENDER CHILDREN: This: ', this);
-      console.log('RENDER CHILDREN: Children: ', this.children);
-      // Delete child instances from the global map
-      for (const uid in children) {
-
-        console.log('RENDER CHILDREN: Deleting child with UID: ', uid);
-        window.iBoxMap.delete(uid);
-      }
-      console.log('RENDER CHILDREN: Map after clearing children: ', window.iBoxMap);
-    }
-  }
-
-  collectCleanJson() {
-    const collectChildren = (child) => {
-      let collectedChildren = [];
-
-      for (let uid in child.children) {
-        const childObj = child.children[uid];
-        let cleanChild = {
-          name: childObj.name,
-          theme: childObj.theme,
-          isExpanded: childObj.isExpanded || false
-        };
-
-        if (childObj.children && Object.keys(childObj.children).length > 0) {
-          cleanChild.children = collectChildren(childObj);
-        }
-
-        collectedChildren.push(cleanChild);
-      }
-
-      return collectedChildren;
-    };
-
-    const cleanJson = {
-      name: this.json[this.uid].name,
-      theme: this.json[this.uid].theme,
-      isExpanded: this.json[this.uid].isExpanded || false,
-      children: collectChildren(this)
-    };
-
-    return cleanJson;
-  }
-
-// Inside your ChildrenBox class
-importCleanJson(json) {
-  // Recursive function to process JSON objects and lists
-  const processValue = (value) => {
-    if (typeof value === 'object') {
-      if (Array.isArray(value)) {
-        // Handle lists: create a parent element with children
-        return {
-          name: 'List Parent',
-          children: value.map(item => processValue(item))
-        };
-      } else {
-        // Handle objects: create a parent element with children corresponding to keys
-        const children = [];
-        for (const key in value) {
-          children.push({
-            name: key,
-            children: [processValue(value[key])]
-          });
-        }
-        return {
-          name: 'Object Parent',
-          children: children
-        };
-      }
-    } else {
-      // Handle primitive values: create a child element with no children
-      return {
-        name: String(value)
-      };
-    }
-  };
-
-  // Process the input JSON
-  const cleanJson = processValue(json);
-
-  // Apply the clean JSON to this ChildrenBox instance
-  this.json = cleanJson;
-  this.update(JSON.stringify(cleanJson)); // Assuming the update method accepts a JSON string
 }
 
-
-  jsonExport() { }
-}
-
-// Define the global map outside of the class
-window.iBoxMap = new Map();
 
 // Export the class for external usage
 window.ChildrenBox = ChildrenBox;

@@ -39,8 +39,11 @@ TABLE OF CONTENTS
    width: 100vh;
 }
 
-.ibox-child-container {
+.ibox-container {
    display: flex;
    flex-direction: row;
-   width: 100%;  /* Ensure it takes up the full width available to it */
-}
+   flex-wrap: wrap; /* Allow the items to wrap to the next line */
+   align-items: flex-start; /* Align items to the start of the cross axis */
+   width: auto; /* Allow the container to shrink to fit its content */
+ }
+ 
