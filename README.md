@@ -414,7 +414,11 @@ Draggable, Resizable, Editable
 
 ## Version Log:
 
-#### v1.3 (Current Version):
+#### v1.4 (Current Version) (WIP):
+
+* Refactored iBoxBase and ChildrenBox to accept JSON with a lazy loading system
+
+#### v1.3:
 
 * **Major Changes** :
 * Refactored class structure for a more modular and understandable hierarchy.
