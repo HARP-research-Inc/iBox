@@ -208,8 +208,6 @@ class ChildrenBox extends window.iBoxBase {
     return JSON.stringify(childJSON);
   }
 
-
-
   addChildBox(json) {
     // If the parent is collapsed, expand it
     if (this.isExpanded === false) {
@@ -243,7 +241,6 @@ class ChildrenBox extends window.iBoxBase {
     // Remove the children from the JSON
     this.json[this.uid].children = [];
   }
-
 
   collapse() {
     console.log('COLLAPSE(CHILDRENBOX): Collapsing iBox with UID: ', this.uid);
